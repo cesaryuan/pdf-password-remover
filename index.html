@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Password Remover</title>
+  </head>
+  <body>
+    <script src="https://rawcdn.githack.com/coherentgraphics/coherentpdf.js/22172597c465aa90d5688258abb2322e5a6d1df5/dist/coherentpdf.browser.min.js"></script>
+
+    <div id="app">
+      <input type="file" id="input" />
+    </div>
+
+    <script>
+      const inputElement = document.getElementById('input');
+      inputElement.addEventListener('change', decryptPDFHandler, false);
+      async function decryptPDFHandler() {
+        const fileList = this.files;
+        const file = fileList[0];
+        debugger;
+        const pdfData = decryptPDF(new Uint8Array(await file.arrayBuffer()));
+        downloadFile(pdfData, addSuffixToFileName(file.name, '_decrypted'));
+      }
+
+      function decryptPDF(data) {
+        const pdf = window.coherentpdf.fromMemory(data, '');
+        window.coherentpdf.decryptPdf(pdf, '');
+        const pdfData = window.coherentpdf.toMemory(pdf, false, false);
+        return pdfData;
+      }
+
+      function downloadFile(data, filename) {
+        const blob = new Blob([data], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+
+      function addSuffixToFileName(filename, suffix) {
+        const dotIndex = filename.lastIndexOf('.');
+        if (dotIndex === -1) {
+          return filename + suffix;
+        }
+        return filename.slice(0, dotIndex) + suffix + filename.slice(dotIndex);
+      }
+    </script>
+  </body>
+</html>
