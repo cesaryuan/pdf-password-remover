@@ -24,9 +24,15 @@
     async function decryptPDFHandler() {
       const file = document.getElementById('input').files[0];
       progressElement.innerText = '正在移除密码...';
-      const pdfData = decryptPDF(new Uint8Array(await file.arrayBuffer()));
-      downloadFile(pdfData, addSuffixToFileName(file.name, '_decrypted'));
-      progressElement.innerText = '移除密码完成';
+      try {
+        const pdfData = decryptPDF(new Uint8Array(await file.arrayBuffer()));
+        downloadFile(pdfData, addSuffixToFileName(file.name, '_decrypted'));
+        progressElement.innerText = '移除密码完成';
+      } catch (error) {
+        console.error(error);
+        progressElement.innerText = '移除密码失败：' + error.message;
+        return;
+      }
     }
 
     function decryptPDF(data) {
