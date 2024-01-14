@@ -1,3 +1,3 @@
 # pdf-password-remover
 
-[Edit in StackBlitz next generation editor ⚡️](https://stackblitz.com/~/github.com/cesaryuan/pdf-password-remover)
+[Click to use it](https://pdf-password-remover.pages.dev/)
