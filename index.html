@@ -1,61 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PDF Password Remover</title>
-    <meta name="description" content="PDF Password Remover, PDF 解密，用于移除 PDF 文件的密码" />
-  </head>
-  <body>
-    <script src="coherentpdf.browser.min.js"></script>
 
-    <div id="app">
-      请导入需要移除密码的 PDF 文件
-      <input type="file" id="input" accept=".pdf"/>
-      <div id="progress"></div>
-    </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PDF Password Remover, PDF 解密，用于移除 PDF 文件的密码" />
+  <title>PDF Password Remover</title>
+  <meta name="keywords" content="PDF, Password, Remover, Decrypt, 解密, 移除, 密码" />
+</head>
 
-    <script>
-      const inputElement = document.getElementById('input');
-      const progressElement = document.getElementById('progress');
-      inputElement.addEventListener('change', decryptPDFHandler, false);
-      async function decryptPDFHandler() {
-        const fileList = this.files;
-        const file = fileList[0];
-        debugger;
-        progressElement.innerText = '正在移除密码...';
-        const pdfData = decryptPDF(new Uint8Array(await file.arrayBuffer()));
-        downloadFile(pdfData, addSuffixToFileName(file.name, '_decrypted'));
-        progressElement.innerText = '移除密码完成';
+<body>
+  <script src="coherentpdf.browser.min.js"></script>
+  <h1>PDF Password Remover</h1>
+  <label for="input">选择 PDF 文件</label>
+  <input type="file" id="input" accept=".pdf" />
+  <button id="decrypt" onclick="decryptPDFHandler()">移除密码并下载</button>
+  <div id="progress"></div>
+
+  <script>
+    const progressElement = document.getElementById('progress');
+    async function decryptPDFHandler() {
+      const file = document.getElementById('input').files[0];
+      progressElement.innerText = '正在移除密码...';
+      const pdfData = decryptPDF(new Uint8Array(await file.arrayBuffer()));
+      downloadFile(pdfData, addSuffixToFileName(file.name, '_decrypted'));
+      progressElement.innerText = '移除密码完成';
+    }
+
+    function decryptPDF(data) {
+      const pdf = window.coherentpdf.fromMemory(data, '');
+      window.coherentpdf.decryptPdf(pdf, '');
+      const pdfData = window.coherentpdf.toMemory(pdf, false, false);
+      return pdfData;
+    }
+
+    function downloadFile(data, filename) {
+      const blob = new Blob([data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function addSuffixToFileName(filename, suffix) {
+      const dotIndex = filename.lastIndexOf('.');
+      if (dotIndex === -1) {
+        return filename + suffix;
       }
+      return filename.slice(0, dotIndex) + suffix + filename.slice(dotIndex);
+    }
+  </script>
+</body>
 
-      function decryptPDF(data) {
-        const pdf = window.coherentpdf.fromMemory(data, '');
-        window.coherentpdf.decryptPdf(pdf, '');
-        const pdfData = window.coherentpdf.toMemory(pdf, false, false);
-        return pdfData;
-      }
-
-      function downloadFile(data, filename) {
-        const blob = new Blob([data], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }
-
-      function addSuffixToFileName(filename, suffix) {
-        const dotIndex = filename.lastIndexOf('.');
-        if (dotIndex === -1) {
-          return filename + suffix;
-        }
-        return filename.slice(0, dotIndex) + suffix + filename.slice(dotIndex);
-      }
-    </script>
-  </body>
 </html>
